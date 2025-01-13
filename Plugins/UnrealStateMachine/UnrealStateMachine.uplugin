@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "UnrealStateMachine",
+	"Description": "A Finite State Machine plugin that can be used to run different states of functionality on objects through C++ or Blueprint implementation.",
+	"Category": "Other",
+	"CreatedBy": "GriggsGD",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "UnrealStateMachine",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
