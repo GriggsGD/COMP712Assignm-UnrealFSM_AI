@@ -3,6 +3,7 @@
 
 #include "StateMachine.h"
 #include "BaseState.h"
+#include "Algo/Find.h"
 #include "GameFramework/Actor.h"
 
 UStateMachine::UStateMachine()
@@ -16,6 +17,8 @@ void UStateMachine::Initialize(AActor* OwnerActor, TSubclassOf<UBaseState> Initi
 	if (InitialStateClass)
 	{
 		CurrentState = NewObject<UBaseState>(this, InitialStateClass);
+		CurrentState->Initialize(this);
+		StateInstances.Add(CurrentState);
 		if (CurrentState)
 		{
 			CurrentState->EnterState(OwnerActor);
@@ -35,14 +38,26 @@ void UStateMachine::ChangeState(TSubclassOf<UBaseState> NewStateClass)
 {
 	if (CurrentState)
 	{
-		AActor* OwnerActor = CurrentState->GetOuter()->GetTypedOuter<AActor>();
-		CurrentState->ExitState(OwnerActor);
-		UE_LOG(LogTemp, Log, TEXT("State Machine: Switching to State: %s"), *CurrentState->GetClass()->GetName());
+		CurrentState->ExitState(Owner);
+		UE_LOG(LogTemp, Log, TEXT("State Machine: Switching to State: %s"), *NewStateClass->GetName());
 	}
 
 	if (NewStateClass)
 	{
-		CurrentState = NewObject<UBaseState>(this, NewStateClass);
+		for (UBaseState* StateInstance : StateInstances)
+		{
+			if (StateInstance->GetClass() == NewStateClass)
+			{
+				CurrentState = StateInstance;
+			}
+		}
+		if (CurrentState->GetClass() != NewStateClass)
+		{
+			CurrentState = NewObject<UBaseState>(this, NewStateClass);
+			CurrentState->Initialize(this);
+			StateInstances.Add(CurrentState);
+		}
+		
 		if (CurrentState)
 		{
 			AActor* OwnerActor = CurrentState->GetOuter()->GetTypedOuter<AActor>();

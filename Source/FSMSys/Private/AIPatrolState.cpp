@@ -7,17 +7,27 @@
 void UAIPatrolState::EnterState_Implementation(AActor* OwnerActor)
 {
 	Super::EnterState_Implementation(OwnerActor);
+
+	NPCCtrl->SetMoveSpeed(230.0f);
 	
 	if (NPCCtrl)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Current patrol point: %i"), NPCCtrl->CurrentPatrolPointIndex);
-		NPCCtrl->MoveToNextPatrolPoint();
+
+		if(NPCCtrl->PatrolPoints.Num() == 0) return;
+		NPCCtrl->MoveToPoint(NPCCtrl->PatrolPoints[NPCCtrl->CurrentPatrolPointIndex]->GetActorLocation());
 	}
 }
 
 void UAIPatrolState::UpdateState_Implementation(AActor* OwnerActor, float const DeltaTime)
 {
 	Super::UpdateState_Implementation(OwnerActor, DeltaTime);
+	//Check if target is detected
+	if (NPCCtrl->GetSensedActor() != nullptr)
+	{
+		NPCCtrl->GetStateMachine()->ChangeState(NPCCtrl->ChaseState);
+	}
+	
 	if (!NPCCtrl || NPCCtrl->PatrolPoints.Num() == 0)
 	{
 		return;
@@ -27,7 +37,7 @@ void UAIPatrolState::UpdateState_Implementation(AActor* OwnerActor, float const 
 	if (DistanceToTarget < NPCCtrl->AcceptanceRadius)
 	{
 		NPCCtrl->CurrentPatrolPointIndex = (NPCCtrl->CurrentPatrolPointIndex + 1) % NPCCtrl->PatrolPoints.Num();
-		NPCCtrl->GetStateMachine_Implementation()->ChangeState(NPCCtrl->AvailableStates[0]);
+		NPCCtrl->GetStateMachine()->ChangeState(NPCCtrl->IdleState);
 	}
 }
 

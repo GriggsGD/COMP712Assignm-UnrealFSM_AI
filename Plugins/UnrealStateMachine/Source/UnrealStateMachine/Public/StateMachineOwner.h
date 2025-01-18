@@ -3,11 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "StateMachine.h"
 #include "UObject/Interface.h"
 #include "StateMachineOwner.generated.h"
 
 // This class does not need to be modified.
-UINTERFACE()
+UINTERFACE(NotBlueprintable)
 class UStateMachineOwner : public UInterface
 {
 	GENERATED_BODY()
@@ -19,6 +20,6 @@ class UNREALSTATEMACHINE_API IStateMachineOwner
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "StateMachine")
-	UStateMachine* GetStateMachine();
+	UFUNCTION(BlueprintCallable, Category = "StateMachine")
+	virtual UStateMachine* GetStateMachine() const = 0;
 };

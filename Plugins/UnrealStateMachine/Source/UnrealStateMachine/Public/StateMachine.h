@@ -12,9 +12,9 @@ class UNREALSTATEMACHINE_API UStateMachine : public UObject
 	GENERATED_BODY()
 public:
 	UStateMachine();
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State Machine")
-	TArray<TSubclassOf<UBaseState>> AvailableStates;
+	
+	UPROPERTY(Transient, VisibleAnywhere, Category = "State Machine")
+	TArray<UBaseState*> StateInstances;
 
 	UFUNCTION(BlueprintCallable, Category = "StateMachine")
 	void Update(float DeltaTime);

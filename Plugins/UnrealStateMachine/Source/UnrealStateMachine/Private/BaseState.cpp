@@ -3,6 +3,19 @@
 
 #include "BaseState.h"
 #include "GameFramework/Actor.h"
+UBaseState::UBaseState()
+	: ControllingStateMachine(nullptr)
+{
+}
+void UBaseState::Initialize(UStateMachine* InStateMachine)
+{
+	ControllingStateMachine = InStateMachine;
+}
+
+UStateMachine* UBaseState::GetControllingStateMachine_Implementation() const
+{
+	return ControllingStateMachine;
+}
 
 void UBaseState::EnterState_Implementation(AActor* OwnerActor)
 {

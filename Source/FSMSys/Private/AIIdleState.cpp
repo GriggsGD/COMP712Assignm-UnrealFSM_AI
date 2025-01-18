@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AIIdleState.h"
+
+#include "AIChaseState.h"
 #include "GameFramework/Actor.h"
 #include "StateDrivenNPC.h"
 #include "Runtime/AIModule/Classes/AIController.h"
@@ -22,8 +24,11 @@ void UAIIdleState::EnterState_Implementation(AActor* OwnerActor)
 void UAIIdleState::UpdateState_Implementation(AActor* OwnerActor, float const DeltaTime)
 {
 	Super::UpdateState_Implementation(OwnerActor, DeltaTime);
-
-	
+	//Check if target is detected
+	if (NPCCtrl->GetSensedActor() != nullptr)
+	{
+		NPCCtrl->GetStateMachine()->ChangeState(NPCCtrl->ChaseState);
+	}
 }
 void UAIIdleState::ExitState_Implementation(AActor* OwnerActor)
 {
@@ -32,5 +37,5 @@ void UAIIdleState::ExitState_Implementation(AActor* OwnerActor)
 
 void UAIIdleState::Patrol() const
 {
-	NPCCtrl->GetStateMachine_Implementation()->ChangeState(NPCCtrl->AvailableStates[1]);
+	NPCCtrl->GetStateMachine()->ChangeState(NPCCtrl->PatrolState);
 }

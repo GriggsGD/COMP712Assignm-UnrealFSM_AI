@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "FSMSysCharacter.generated.h"
 
 class USpringArmComponent;
@@ -56,8 +57,9 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 			
-
-protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	UAIPerceptionStimuliSourceComponent* StimuliSourceComponent;
+	
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	

@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Perception/AISense_Sight.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -52,6 +53,12 @@ AFSMSysCharacter::AFSMSysCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+	StimuliSourceComponent = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("StimuliSourceComponent"));
+
+	// Register sight stimuli
+	StimuliSourceComponent->RegisterForSense(TSubclassOf<UAISense_Sight>());
+	StimuliSourceComponent->RegisterWithPerceptionSystem();
 }
 
 void AFSMSysCharacter::BeginPlay()

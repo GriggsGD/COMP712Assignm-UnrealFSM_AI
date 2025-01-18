@@ -9,6 +9,6 @@ public class FSMSys : ModuleRules
 		PrivateDependencyModuleNames.AddRange(new string[] { "UnrealStateMachine" });
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UnrealStateMachine", "AIModule" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UnrealStateMachine", "AIModule", "NavigationSystem" });
 	}
 }
