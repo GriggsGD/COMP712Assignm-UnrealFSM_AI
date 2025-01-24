@@ -45,6 +45,9 @@ class AFSMSysCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* QuitAction;
+
 public:
 	AFSMSysCharacter();
 	
@@ -56,6 +59,8 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
+
+	void Quit(const FInputActionValue& Value);
 			
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	UAIPerceptionStimuliSourceComponent* StimuliSourceComponent;

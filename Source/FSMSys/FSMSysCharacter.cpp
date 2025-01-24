@@ -93,6 +93,8 @@ void AFSMSysCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AFSMSysCharacter::Look);
+
+		EnhancedInputComponent->BindAction(QuitAction, ETriggerEvent::Started, this, &AFSMSysCharacter::Quit);
 	}
 	else
 	{
@@ -133,5 +135,13 @@ void AFSMSysCharacter::Look(const FInputActionValue& Value)
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+	}
+}
+
+void AFSMSysCharacter::Quit(const FInputActionValue& Value)
+{
+	if (Value.Get<bool>())
+	{
+		GetWorld()->GetFirstPlayerController()->ConsoleCommand("quit");
 	}
 }
