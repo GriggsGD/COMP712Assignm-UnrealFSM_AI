@@ -76,6 +76,9 @@ bool AStateDrivenNPC::GetCanAttack() const
 void AStateDrivenNPC::Punch()
 {
 	UE_LOG(LogTemp, Log, TEXT("Punch"));
+	if(auto* const AnimInst = GetMesh()->GetAnimInstance()){
+		AnimInst->Montage_Play(PunchMontage);
+	}
 }
 
 // Called when the game starts or when spawned
@@ -90,6 +93,12 @@ void AStateDrivenNPC::SetCanAttack(bool bNewCanAttack)
 	bCanAttack = bNewCanAttack;
 }
 
+void AStateDrivenNPC::SetIsSearching(bool Searching){
+	IsSearching = Searching;
+}
+bool AStateDrivenNPC::GetIsSearching(){
+	return IsSearching;
+}
 void AStateDrivenNPC::InitializeStateMachine()
 {
 	if (!StateMachine)

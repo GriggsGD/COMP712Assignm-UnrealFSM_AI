@@ -91,6 +91,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AI|Attack")
 	void SetCanAttack(bool bNewCanAttack);
 
+	UFUNCTION(BlueprintCallable, Category = "AI")
+	void GetIsSearching() const;
+	UFUNCTION(BlueprintCallable, Category = "AI")
+	void SetIsSearching(bool Searching);
+
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void Punch();
 protected:
@@ -102,7 +107,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI|Attack")
 	bool bCanAttack;
-	
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
+	bool IsSearching;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* PunchMontage;
 private:
 	//State Machine
 	UPROPERTY()
