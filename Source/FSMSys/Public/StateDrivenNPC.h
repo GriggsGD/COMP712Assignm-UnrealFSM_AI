@@ -92,7 +92,7 @@ public:
 	void SetCanAttack(bool bNewCanAttack);
 
 	UFUNCTION(BlueprintCallable, Category = "AI")
-	void GetIsSearching() const;
+	bool GetIsSearching() const;
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	void SetIsSearching(bool Searching);
 

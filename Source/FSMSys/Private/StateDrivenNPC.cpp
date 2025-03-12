@@ -93,11 +93,14 @@ void AStateDrivenNPC::SetCanAttack(bool bNewCanAttack)
 	bCanAttack = bNewCanAttack;
 }
 
-void AStateDrivenNPC::SetIsSearching(bool Searching){
-	IsSearching = Searching;
-}
-bool AStateDrivenNPC::GetIsSearching(){
+bool AStateDrivenNPC::GetIsSearching() const
+{
 	return IsSearching;
+}
+
+void AStateDrivenNPC::SetIsSearching(bool Searching)
+{
+	IsSearching = Searching;
 }
 void AStateDrivenNPC::InitializeStateMachine()
 {
