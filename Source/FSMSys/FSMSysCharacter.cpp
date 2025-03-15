@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Perception/AISense_Sight.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -19,6 +20,8 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 AFSMSysCharacter::AFSMSysCharacter()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	LockOnComp = CreateDefaultSubobject<ULockOnComponent>(TEXT("LockOnComp"));
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 		
@@ -67,6 +70,41 @@ void AFSMSysCharacter::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AFSMSysCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (LockOnComp->GetLockOnTarget())
+	{
+		RotateToTarget(DeltaTime);
+	}
+}
+
+void AFSMSysCharacter::LockOnTarget()
+{
+	UE_LOG(LogTemp, Log, TEXT("Locking onto target"));
+	LockOnComp->FindTarget();
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+}
+
+void AFSMSysCharacter::UnlockOnTarget()
+{
+	UE_LOG(LogTemp, Log, TEXT("Target unlock"));
+	LockOnComp->ClearTarget();
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+}
+
+void AFSMSysCharacter::RotateToTarget(float DeltaTime)
+{
+	AActor* CurrentTarget = LockOnComp->GetLockOnTarget();
+	if (!CurrentTarget) return;
+
+	FRotator LookRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), CurrentTarget->GetActorLocation());
+	FRotator NewRot = FMath::RInterpTo(GetActorRotation(), LookRot, DeltaTime, 5.f);
+
+	SetActorRotation(NewRot);
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -94,6 +132,11 @@ void AFSMSysCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AFSMSysCharacter::Look);
 
+		//Lock on
+		EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Started, this, &AFSMSysCharacter::LockOnTarget);
+		EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Completed, this, &AFSMSysCharacter::UnlockOnTarget);
+
+		//Quit
 		EnhancedInputComponent->BindAction(QuitAction, ETriggerEvent::Started, this, &AFSMSysCharacter::Quit);
 	}
 	else
