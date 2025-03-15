@@ -23,7 +23,10 @@ public:
 	FOnHealthChanged OnHealthChanged;
 
 	void TakeDamage(float DamageAmount);
+	UFUNCTION(BlueprintCallable)
 	float GetHealth() const { return CurrentHealth; }
+	UFUNCTION(BlueprintCallable)
+	float GetMaxHealth() const { return MaxHealth; }
 protected:
 	virtual void BeginPlay() override;
 
