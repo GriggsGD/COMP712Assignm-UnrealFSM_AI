@@ -85,6 +85,7 @@ void AFSMSysCharacter::LockOnTarget()
 	UE_LOG(LogTemp, Log, TEXT("Locking onto target"));
 	LockOnComp->FindTarget();
 	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->MaxWalkSpeed = 150;
 }
 
 void AFSMSysCharacter::UnlockOnTarget()
@@ -92,6 +93,7 @@ void AFSMSysCharacter::UnlockOnTarget()
 	UE_LOG(LogTemp, Log, TEXT("Target unlock"));
 	LockOnComp->ClearTarget();
 	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->MaxWalkSpeed = 500;
 }
 
 void AFSMSysCharacter::RotateToTarget(float DeltaTime)
@@ -187,4 +189,9 @@ void AFSMSysCharacter::Quit(const FInputActionValue& Value)
 	{
 		GetWorld()->GetFirstPlayerController()->ConsoleCommand("quit");
 	}
+}
+bool AFSMSysCharacter::IsInCombat()
+{
+	if (!LockOnComp) return false;
+	if (LockOnComp->GetLockOnTarget()){ return true; } else { return false;}
 }
