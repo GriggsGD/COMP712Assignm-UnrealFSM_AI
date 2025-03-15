@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "BaseState.h"
+#include "CombatInterface.h"
+#include "HealthComponent.h"
 #include "StateMachine.h"
 #include "GameFramework/Character.h"
 #include "StateMachineOwner.h"
@@ -12,7 +14,7 @@
 #include "StateDrivenNPC.generated.h"
 
 UCLASS()
-class FSMSYS_API AStateDrivenNPC : public ACharacter, public IStateMachineOwner
+class FSMSYS_API AStateDrivenNPC : public ACharacter, public IStateMachineOwner, public ICombatInterface
 {
 	GENERATED_BODY()
 
@@ -98,6 +100,13 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void Punch();
+
+	virtual void Attack() override;
+	virtual void TakeDamage(float DamageAmount) override;
+	virtual void Kill() override;
+
+	UFUNCTION()
+	void OnDeath();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -140,7 +149,9 @@ private:
 	FVector LastKnownPos;
 
 	FVector GetNavMeshPosition(FVector Pos) const;
+
+	UPROPERTY(VisibleAnywhere, Category="Health")
+	UHealthComponent* HealthComp;
 	
-public:
-	
+	bool bAlive = true;
 };

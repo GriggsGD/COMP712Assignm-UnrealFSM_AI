@@ -2,6 +2,8 @@
 
 
 #include "StateDrivenNPC.h"
+
+#include "HealthComponent.h"
 #include "Runtime/AIModule/Classes/AIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "NavigationSystem.h"
@@ -33,6 +35,8 @@ AStateDrivenNPC::AStateDrivenNPC()
 
 	// Bind to perception updates
 	PerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AStateDrivenNPC::OnPerceptionUpdated);
+
+	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComp"));
 }
 
 UStateMachine* AStateDrivenNPC::GetStateMachine() const
@@ -81,11 +85,35 @@ void AStateDrivenNPC::Punch()
 	}
 }
 
+void AStateDrivenNPC::Attack()
+{
+}
+
+void AStateDrivenNPC::TakeDamage(float DamageAmount)
+{
+	if (!bAlive) return;
+
+	HealthComp->TakeDamage(DamageAmount);
+}
+
+void AStateDrivenNPC::Kill()
+{
+	if (!bAlive) return;
+
+	bAlive = false;
+}
+
+void AStateDrivenNPC::OnDeath()
+{
+	Kill();
+}
+
 // Called when the game starts or when spawned
 void AStateDrivenNPC::BeginPlay()
 {
 	Super::BeginPlay();
 	InitializeStateMachine();
+	HealthComp->OnDeath.AddDynamic(this, &AStateDrivenNPC::OnDeath);
 }
 
 void AStateDrivenNPC::SetCanAttack(bool bNewCanAttack)
