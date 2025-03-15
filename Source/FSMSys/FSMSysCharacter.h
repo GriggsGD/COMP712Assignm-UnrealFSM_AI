@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CombatInterface.h"
+#include "HealthComponent.h"
 #include "LockOnComponent.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
@@ -18,7 +20,7 @@ struct FInputActionValue;
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
-class AFSMSysCharacter : public ACharacter
+class AFSMSysCharacter : public ACharacter, public ICombatInterface
 {
 	GENERATED_BODY()
 
@@ -61,7 +63,12 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-	
+
+	virtual void Attack() override;
+	virtual void TakeDamage(float Damage) override;
+	virtual void Kill() override;
+	UFUNCTION()
+	void OnDeath();
 protected:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
@@ -90,5 +97,10 @@ private:
 	void LockOnTarget();
 	void UnlockOnTarget();
 	void RotateToTarget(float DeltaTime);
+
+	UPROPERTY(VisibleAnywhere, Category = "Health")
+	UHealthComponent* HealthComp;
+	
+	bool bAlive = true;
 };
 

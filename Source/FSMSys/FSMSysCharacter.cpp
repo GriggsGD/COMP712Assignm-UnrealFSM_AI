@@ -9,6 +9,7 @@
 #include "GameFramework/Controller.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "HealthComponent.h"
 #include "InputActionValue.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Perception/AISense_Sight.h"
@@ -21,6 +22,7 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 AFSMSysCharacter::AFSMSysCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComp"));
 	LockOnComp = CreateDefaultSubobject<ULockOnComponent>(TEXT("LockOnComp"));
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -64,10 +66,32 @@ AFSMSysCharacter::AFSMSysCharacter()
 	StimuliSourceComponent->RegisterWithPerceptionSystem();
 }
 
+void AFSMSysCharacter::Attack()
+{
+}
+
+void AFSMSysCharacter::TakeDamage(float Damage)
+{
+	if (!bAlive) return;
+	HealthComp->TakeDamage(Damage);
+}
+
+void AFSMSysCharacter::Kill()
+{
+	if (!bAlive) return;
+	HealthComp->TakeDamage(HealthComp->GetHealth());
+	bAlive = false;
+}
+
+void AFSMSysCharacter::OnDeath()
+{
+	Kill();
+}
+
 void AFSMSysCharacter::BeginPlay()
 {
-	// Call the base class  
 	Super::BeginPlay();
+	HealthComp->OnDeath.AddDynamic(this, &AFSMSysCharacter::OnDeath);
 }
 
 void AFSMSysCharacter::Tick(float DeltaTime)
