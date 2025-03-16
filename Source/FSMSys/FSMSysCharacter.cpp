@@ -84,8 +84,8 @@ void AFSMSysCharacter::Attack_Implementation()
 
 void AFSMSysCharacter::TakeDamage(float Damage)
 {
-	if (!bAlive) return;
 	HealthComp->TakeDamage(Damage);
+	if (!bAlive) return;
 	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
 	{
 		if (!HitMontage) return;
@@ -97,13 +97,59 @@ void AFSMSysCharacter::TakeDamage(float Damage)
 void AFSMSysCharacter::Kill()
 {
 	if (!bAlive) return;
-	HealthComp->TakeDamage(HealthComp->GetHealth());
+	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
+	{
+		if (!KOMontage) return;
+		UE_LOG(LogTemp, Display, TEXT("Playing KO Anim on Player"));
+		AnimInst->Montage_Play(KOMontage);
+		GetCharacterMovement()->DisableMovement();
+		if (AController* PlayerController = GetController())
+		{
+			PlayerController->DisableInput(nullptr);
+		}
+		bCanAttack = false;
+	}
 	bAlive = false;
 }
 
 void AFSMSysCharacter::OnDeath()
 {
 	Kill();
+}
+
+void AFSMSysCharacter::Ragdoll()
+{
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
+
+	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &AFSMSysCharacter::Respawn, 3.f, false);
+}
+
+void AFSMSysCharacter::Respawn()
+{
+	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
+	{
+		AnimInst->StopAllMontages(0.f);
+		bCanAttack = false;
+	}
+	
+	GetMesh()->SetSimulatePhysics(false);
+	GetMesh()->SetCollisionProfileName(TEXT("CharacterMesh"));
+	
+	HealthComp->Heal(HealthComp->GetMaxHealth());
+	bAlive = true;
+	
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+	if (AController* PlayerController = GetController())
+	{
+		PlayerController->EnableInput(nullptr);
+	}
+	
+	GetCapsuleComponent()->SetWorldRotation(FRotator(0.0f, GetActorRotation().Yaw, 0.0f));
+	GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, .0f));
+
+	GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
+	SetActorLocation(SpawnPoint);
 }
 
 void AFSMSysCharacter::Punch()
@@ -123,6 +169,7 @@ void AFSMSysCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	HealthComp->OnDeath.AddDynamic(this, &AFSMSysCharacter::OnDeath);
+	SpawnPoint = GetActorLocation();
 }
 
 void AFSMSysCharacter::Tick(float DeltaTime)

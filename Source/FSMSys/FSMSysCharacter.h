@@ -74,6 +74,8 @@ public:
 	virtual void Kill() override;
 	UFUNCTION()
 	void OnDeath();
+	UFUNCTION(BlueprintCallable)
+	void Ragdoll();
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void Punch();
@@ -131,5 +133,10 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="Combat", meta=(ClampMin="0.0"))
 	float MaxDamage = 20.f;
+
+	UFUNCTION()
+	void Respawn();
+	FTimerHandle RespawnTimerHandle;
+	FVector SpawnPoint;
 };
 

@@ -105,10 +105,7 @@ void AStateDrivenNPC::Attack_Implementation()
 
 void AStateDrivenNPC::TakeDamage(float DamageAmount)
 {
-	if (!bAlive) return;
-
 	HealthComp->TakeDamage(DamageAmount);
-	
 	if (!bAlive) return;
 	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
 	{
