@@ -104,6 +104,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	TArray<UAnimMontage*> PunchMontages;
+	
+	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* HitMontage;
+
+	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* KOMontage;
 private:
 	UPROPERTY(VisibleAnywhere, Category = "LockOn")
 	ULockOnComponent* LockOnComp;

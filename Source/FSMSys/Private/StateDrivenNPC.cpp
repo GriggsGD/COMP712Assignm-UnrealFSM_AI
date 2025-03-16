@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "NavigationSystem.h"
 #include "StateMachine.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 AStateDrivenNPC::AStateDrivenNPC()
@@ -88,6 +89,7 @@ void AStateDrivenNPC::Punch()
 
 void AStateDrivenNPC::Attack_Implementation()
 {
+	if (!bAlive) return;
 	if (SensedActor)
 	{
 		float Damage = FMath::RandRange(MinDamage, MaxDamage);
@@ -106,19 +108,66 @@ void AStateDrivenNPC::TakeDamage(float DamageAmount)
 	if (!bAlive) return;
 
 	HealthComp->TakeDamage(DamageAmount);
+	
+	if (!bAlive) return;
+	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
+	{
+		if (!HitMontage) return;
+		AnimInst->Montage_Play(HitMontage);
+		bCanAttack = false;
+	}
 }
 
 void AStateDrivenNPC::Kill()
 {
 	if (!bAlive) return;
-
+	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
+	{
+		if (!KOMontage) return;
+		AnimInst->Montage_Play(KOMontage);
+		GetCharacterMovement()->DisableMovement();
+		bCanAttack = false;
+	}
 	bAlive = false;
+}
+
+void AStateDrivenNPC::Ragdoll()
+{
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
+
+	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &AStateDrivenNPC::Respawn, 3.f, false);
 }
 
 void AStateDrivenNPC::OnDeath()
 {
 	Kill();
 }
+void AStateDrivenNPC::Respawn()
+{
+	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
+	{
+		AnimInst->StopAllMontages(0.f);
+		bCanAttack = false;
+	}
+	
+	GetMesh()->SetSimulatePhysics(false);
+	GetMesh()->SetCollisionProfileName(TEXT("CharacterMesh"));
+	
+	HealthComp->Heal(HealthComp->GetMaxHealth());
+	bAlive = true;
+	
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+	
+	StateMachine->ChangeState(PatrolState);
+	
+	GetCapsuleComponent()->SetWorldRotation(FRotator(0.0f, GetActorRotation().Yaw, 0.0f));
+	GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, .0f));
+
+	GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
+	SetActorLocation(PatrolPoints[FMath::RandRange(0, PatrolPoints.Num() - 1)]->GetActorLocation());
+}
+
 
 // Called when the game starts or when spawned
 void AStateDrivenNPC::BeginPlay()
@@ -128,15 +177,7 @@ void AStateDrivenNPC::BeginPlay()
 	HealthComp->OnDeath.AddDynamic(this, &AStateDrivenNPC::OnDeath);
 }
 
-bool AStateDrivenNPC::GetIsSearching() const
-{
-	return IsSearching;
-}
 
-void AStateDrivenNPC::SetIsSearching(bool Searching)
-{
-	IsSearching = Searching;
-}
 void AStateDrivenNPC::InitializeStateMachine()
 {
 	if (!StateMachine)
@@ -201,6 +242,7 @@ void AStateDrivenNPC::Tick(float DeltaTime)
 
 	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
 	{
+		if (!bAlive) return;
 		if (!AnimInst->IsAnyMontagePlaying())
 		{
 			bCanAttack = true;

@@ -86,6 +86,12 @@ void AFSMSysCharacter::TakeDamage(float Damage)
 {
 	if (!bAlive) return;
 	HealthComp->TakeDamage(Damage);
+	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
+	{
+		if (!HitMontage) return;
+		AnimInst->Montage_Play(HitMontage);
+		bCanAttack = false;
+	}
 }
 
 void AFSMSysCharacter::Kill()
@@ -130,6 +136,7 @@ void AFSMSysCharacter::Tick(float DeltaTime)
 
 	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
 	{
+		if (!bAlive) return;
 		if (!AnimInst->IsAnyMontagePlaying())
 		{
 			bCanAttack = true;

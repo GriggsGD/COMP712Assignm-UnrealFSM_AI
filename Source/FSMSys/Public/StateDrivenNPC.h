@@ -93,18 +93,15 @@ public:
 
 	void SetMoveSpeed(float Speed);
 
-	UFUNCTION(BlueprintCallable, Category = "AI")
-	bool GetIsSearching() const;
-	UFUNCTION(BlueprintCallable, Category = "AI")
-	void SetIsSearching(bool Searching);
-
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void Punch();
 
 	virtual void Attack_Implementation() override;
 	virtual void TakeDamage(float DamageAmount) override;
 	virtual void Kill() override;
-
+	UFUNCTION(BlueprintCallable)
+	void Ragdoll();
+	
 	UFUNCTION()
 	void OnDeath();
 protected:
@@ -122,6 +119,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	TArray<UAnimMontage*> PunchMontages;
+
+	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* HitMontage;
+	
+	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* KOMontage;
 private:
 	//State Machine
 	UPROPERTY()
@@ -154,4 +157,8 @@ private:
 	UHealthComponent* HealthComp;
 	
 	bool bAlive = true;
+
+	UFUNCTION()
+	void Respawn();
+	FTimerHandle RespawnTimerHandle;
 };
