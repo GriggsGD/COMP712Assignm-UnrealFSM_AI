@@ -98,7 +98,7 @@ private:
 	void UnlockOnTarget();
 	void RotateToTarget(float DeltaTime);
 
-	UPROPERTY(VisibleAnywhere, Category = "Health")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health", meta = (AllowPrivateAccess = "true"))
 	UHealthComponent* HealthComp;
 	
 	bool bAlive = true;

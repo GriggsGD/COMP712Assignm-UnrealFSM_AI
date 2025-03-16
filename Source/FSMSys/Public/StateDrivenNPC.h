@@ -150,7 +150,7 @@ private:
 
 	FVector GetNavMeshPosition(FVector Pos) const;
 
-	UPROPERTY(VisibleAnywhere, Category="Health")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health", meta = (AllowPrivateAccess = "true"))
 	UHealthComponent* HealthComp;
 	
 	bool bAlive = true;
