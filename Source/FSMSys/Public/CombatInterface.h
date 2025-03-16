@@ -19,6 +19,7 @@ class FSMSYS_API ICombatInterface
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat")
 	void Attack();
-	virtual void TakeDamage(float Damage) = 0;
+	virtual void TakeDamage(float Damage, ICombatInterface* Attacker) = 0;
 	virtual void Kill() = 0;
+	virtual void AddKillCount() = 0;
 };

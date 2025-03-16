@@ -76,14 +76,18 @@ void AFSMSysCharacter::Attack_Implementation()
 		{
 			if (ICombatInterface* CombatTarget = Cast<ICombatInterface>(Target))
 			{
-				CombatTarget->TakeDamage(Damage);
+				CombatTarget->TakeDamage(Damage, this);
 			}
 		}
 	}
 }
 
-void AFSMSysCharacter::TakeDamage(float Damage)
+void AFSMSysCharacter::TakeDamage(float Damage, ICombatInterface* Attacker)
 {
+	if (bAlive)
+	{
+		LastAttacker = Attacker;
+	}
 	HealthComp->TakeDamage(Damage);
 	if (!bAlive) return;
 	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
@@ -112,8 +116,17 @@ void AFSMSysCharacter::Kill()
 	bAlive = false;
 }
 
+void AFSMSysCharacter::AddKillCount()
+{
+	Score++;
+}
+
 void AFSMSysCharacter::OnDeath()
 {
+	if (LastAttacker)
+	{
+		LastAttacker->AddKillCount();
+	}
 	Kill();
 }
 

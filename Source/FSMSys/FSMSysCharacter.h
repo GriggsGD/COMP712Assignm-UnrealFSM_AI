@@ -70,8 +70,9 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 	virtual  void Attack_Implementation() override;
-	virtual void TakeDamage(float Damage) override;
+	virtual void TakeDamage(float Damage, ICombatInterface* Attacker) override;
 	virtual void Kill() override;
+	virtual void AddKillCount() override;
 	UFUNCTION()
 	void OnDeath();
 	UFUNCTION(BlueprintCallable)
@@ -138,5 +139,10 @@ private:
 	void Respawn();
 	FTimerHandle RespawnTimerHandle;
 	FVector SpawnPoint;
+
+	ICombatInterface* LastAttacker;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat", Meta = (AllowPrivateAccess = "true"))
+	int Score = 0;
 };
 

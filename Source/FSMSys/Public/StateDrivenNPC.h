@@ -97,8 +97,10 @@ public:
 	void Punch();
 
 	virtual void Attack_Implementation() override;
-	virtual void TakeDamage(float DamageAmount) override;
+	virtual void TakeDamage(float DamageAmount, ICombatInterface* Attacker) override;
 	virtual void Kill() override;
+	virtual void AddKillCount() override;
+
 	UFUNCTION(BlueprintCallable)
 	void Ragdoll();
 	
@@ -161,4 +163,9 @@ private:
 	UFUNCTION()
 	void Respawn();
 	FTimerHandle RespawnTimerHandle;
+	
+	ICombatInterface* LastAttacker;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat", Meta = (AllowPrivateAccess = "true"))
+	int Score = 0;
 };

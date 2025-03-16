@@ -97,14 +97,18 @@ void AStateDrivenNPC::Attack_Implementation()
 		{
 			if (ICombatInterface* CombatTarget = Cast<ICombatInterface>(SensedActor))
 			{
-				CombatTarget->TakeDamage(Damage);
+				CombatTarget->TakeDamage(Damage, this);
 			}
 		}
 	}
 }
 
-void AStateDrivenNPC::TakeDamage(float DamageAmount)
+void AStateDrivenNPC::TakeDamage(float DamageAmount, ICombatInterface* Attacker)
 {
+	if (bAlive)
+	{
+		LastAttacker = Attacker;
+	}
 	HealthComp->TakeDamage(DamageAmount);
 	if (!bAlive) return;
 	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
@@ -128,6 +132,11 @@ void AStateDrivenNPC::Kill()
 	bAlive = false;
 }
 
+void AStateDrivenNPC::AddKillCount()
+{
+	Score++;
+}
+
 void AStateDrivenNPC::Ragdoll()
 {
 	GetMesh()->SetSimulatePhysics(true);
@@ -138,6 +147,10 @@ void AStateDrivenNPC::Ragdoll()
 
 void AStateDrivenNPC::OnDeath()
 {
+	if (LastAttacker)
+	{
+		LastAttacker->AddKillCount();
+	}
 	Kill();
 }
 void AStateDrivenNPC::Respawn()
