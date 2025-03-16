@@ -66,8 +66,20 @@ AFSMSysCharacter::AFSMSysCharacter()
 	StimuliSourceComponent->RegisterWithPerceptionSystem();
 }
 
-void AFSMSysCharacter::Attack()
+void AFSMSysCharacter::Attack_Implementation()
 {
+	AActor* Target = LockOnComp->GetLockOnTarget();
+	if (Target)
+	{
+		float Damage = FMath::RandRange(MinDamage, MaxDamage);
+		if (FVector::Dist(Target->GetActorLocation(), GetActorLocation()) <= AttackDist)
+		{
+			if (ICombatInterface* CombatTarget = Cast<ICombatInterface>(Target))
+			{
+				CombatTarget->TakeDamage(Damage);
+			}
+		}
+	}
 }
 
 void AFSMSysCharacter::TakeDamage(float Damage)
@@ -88,6 +100,19 @@ void AFSMSysCharacter::OnDeath()
 	Kill();
 }
 
+void AFSMSysCharacter::Punch()
+{
+	if (!bCanAttack) return;
+	if(auto* const AnimInst = GetMesh()->GetAnimInstance()){
+		int32 RandIndex = FMath::RandRange(0, PunchMontages.Num() - 1);
+		if (UAnimMontage* SelectedMont = PunchMontages[RandIndex])
+		{
+			AnimInst->Montage_Play(SelectedMont);
+			bCanAttack = false;
+		}
+	}
+}
+
 void AFSMSysCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -101,6 +126,14 @@ void AFSMSysCharacter::Tick(float DeltaTime)
 	if (LockOnComp->GetLockOnTarget())
 	{
 		RotateToTarget(DeltaTime);
+	}
+
+	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
+	{
+		if (!AnimInst->IsAnyMontagePlaying())
+		{
+			bCanAttack = true;
+		}
 	}
 }
 
@@ -162,6 +195,9 @@ void AFSMSysCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Started, this, &AFSMSysCharacter::LockOnTarget);
 		EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Completed, this, &AFSMSysCharacter::UnlockOnTarget);
 
+		//Attack
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &AFSMSysCharacter::Punch);
+		
 		//Quit
 		EnhancedInputComponent->BindAction(QuitAction, ETriggerEvent::Started, this, &AFSMSysCharacter::Quit);
 	}

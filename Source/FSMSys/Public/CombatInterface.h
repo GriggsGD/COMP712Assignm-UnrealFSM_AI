@@ -17,7 +17,8 @@ class FSMSYS_API ICombatInterface
 	GENERATED_BODY()
 	
 public:
-	virtual void Attack() = 0;
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat")
+	void Attack();
 	virtual void TakeDamage(float Damage) = 0;
 	virtual void Kill() = 0;
 };

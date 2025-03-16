@@ -18,13 +18,11 @@ void UAIAttackState::UpdateState_Implementation(AActor* OwnerActor, float DeltaT
 	{
 		if (FVector::Dist(NPCCtrl->GetActorLocation(), NPCCtrl->GetSensedActor()->GetActorLocation()) > NPCCtrl->PunchDist)
 		{
-			NPCCtrl->SetCanAttack(false);
 			NPCCtrl->MoveToPoint(NPCCtrl->GetSensedActor()->GetActorLocation());
 		}
 		else
 		{
-			//UE_LOG(LogTemp, Log, TEXT("Can attack"));
-			NPCCtrl->SetCanAttack(true);
+			NPCCtrl->Punch();
 		}
 		if (FVector::Dist(NPCCtrl->GetActorLocation(), NPCCtrl->GetSensedActor()->GetActorLocation()) > NPCCtrl->AttackDist)
 		{

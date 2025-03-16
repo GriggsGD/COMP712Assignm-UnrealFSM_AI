@@ -7,6 +7,7 @@
 #include "HealthComponent.h"
 #include "LockOnComponent.h"
 #include "GameFramework/Character.h"
+#include "Animation/AnimMontage.h"
 #include "Logging/LogMacros.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "FSMSysCharacter.generated.h"
@@ -51,7 +52,11 @@ class AFSMSysCharacter : public ACharacter, public ICombatInterface
 	/** Lock On Action **/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LockOnAction;
-
+	
+	/** Attack Action **/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* AttackAction;
+	
 	/** Quit Action **/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* QuitAction;
@@ -64,11 +69,14 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-	virtual void Attack() override;
+	virtual  void Attack_Implementation() override;
 	virtual void TakeDamage(float Damage) override;
 	virtual void Kill() override;
 	UFUNCTION()
 	void OnDeath();
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void Punch();
 protected:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
@@ -90,6 +98,12 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool IsInCombat();
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat")
+	bool bCanAttack = true;
+
+	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	TArray<UAnimMontage*> PunchMontages;
 private:
 	UPROPERTY(VisibleAnywhere, Category = "LockOn")
 	ULockOnComponent* LockOnComp;
@@ -102,5 +116,14 @@ private:
 	UHealthComponent* HealthComp;
 	
 	bool bAlive = true;
+
+	UPROPERTY(EditAnywhere, Category="Combat", meta=(ClampMin="0.0"))
+	float AttackDist = 125.f;
+
+	UPROPERTY(EditAnywhere, Category="Combat", meta=(ClampMin="0.0"))
+	float MinDamage = 5.f;
+
+	UPROPERTY(EditAnywhere, Category="Combat", meta=(ClampMin="0.0"))
+	float MaxDamage = 20.f;
 };
 

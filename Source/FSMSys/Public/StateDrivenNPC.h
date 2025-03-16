@@ -9,6 +9,7 @@
 #include "StateMachine.h"
 #include "GameFramework/Character.h"
 #include "StateMachineOwner.h"
+#include "Animation/AnimMontage.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "StateDrivenNPC.generated.h"
@@ -72,10 +73,14 @@ public:
 	UPROPERTY(EditAnywhere, Category = "AI|Sight")
 	bool DetectFriendlies = false;
 
-	UPROPERTY(EditAnywhere, Category = "AI|Attack")
+	UPROPERTY(EditAnywhere, Category = "Combat")
 	float AttackDist = 200.0f;
-	UPROPERTY(EditAnywhere, Category = "AI|Attack")
-	float PunchDist = 105.0f;
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float PunchDist = 125.0f;
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float MinDamage = 5.f;
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float MaxDamage = 20.f;
 	
 	UFUNCTION(BlueprintCallable)
 	AActor* GetSensedActor();
@@ -88,11 +93,6 @@ public:
 
 	void SetMoveSpeed(float Speed);
 
-	UFUNCTION(BlueprintCallable, Category = "Combat")
-	bool GetCanAttack() const;
-	UFUNCTION(BlueprintCallable, Category = "AI|Attack")
-	void SetCanAttack(bool bNewCanAttack);
-
 	UFUNCTION(BlueprintCallable, Category = "AI")
 	bool GetIsSearching() const;
 	UFUNCTION(BlueprintCallable, Category = "AI")
@@ -101,7 +101,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void Punch();
 
-	virtual void Attack() override;
+	virtual void Attack_Implementation() override;
 	virtual void TakeDamage(float DamageAmount) override;
 	virtual void Kill() override;
 
@@ -111,17 +111,17 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI|Attack")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	bool IsInCombat;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI|Attack")
-	bool bCanAttack;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat")
+	bool bCanAttack = true;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	bool IsSearching;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))
-	UAnimMontage* PunchMontage;
+	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	TArray<UAnimMontage*> PunchMontages;
 private:
 	//State Machine
 	UPROPERTY()

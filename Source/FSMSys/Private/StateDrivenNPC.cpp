@@ -72,21 +72,33 @@ void AStateDrivenNPC::SetMoveSpeed(float Speed)
 	}
 }
 
-bool AStateDrivenNPC::GetCanAttack() const
-{
-	return bCanAttack;
-}
-
 void AStateDrivenNPC::Punch()
 {
-	UE_LOG(LogTemp, Log, TEXT("Punch"));
+	if (!bCanAttack) return;
+	if (PunchMontages.Num() <= 0) { UE_LOG(LogTemp, Error, TEXT("NPC holds no Punch Montages!")); return; }
 	if(auto* const AnimInst = GetMesh()->GetAnimInstance()){
-		AnimInst->Montage_Play(PunchMontage);
+		int32 RandIndex = FMath::RandRange(0, PunchMontages.Num() - 1);
+		if (UAnimMontage* SelectedMont = PunchMontages[RandIndex])
+		{
+			AnimInst->Montage_Play(SelectedMont);
+			bCanAttack = false;
+		}
 	}
 }
 
-void AStateDrivenNPC::Attack()
+void AStateDrivenNPC::Attack_Implementation()
 {
+	if (SensedActor)
+	{
+		float Damage = FMath::RandRange(MinDamage, MaxDamage);
+		if (FVector::Dist(SensedActor->GetActorLocation(), GetActorLocation()) <= PunchDist)
+		{
+			if (ICombatInterface* CombatTarget = Cast<ICombatInterface>(SensedActor))
+			{
+				CombatTarget->TakeDamage(Damage);
+			}
+		}
+	}
 }
 
 void AStateDrivenNPC::TakeDamage(float DamageAmount)
@@ -114,11 +126,6 @@ void AStateDrivenNPC::BeginPlay()
 	Super::BeginPlay();
 	InitializeStateMachine();
 	HealthComp->OnDeath.AddDynamic(this, &AStateDrivenNPC::OnDeath);
-}
-
-void AStateDrivenNPC::SetCanAttack(bool bNewCanAttack)
-{
-	bCanAttack = bNewCanAttack;
 }
 
 bool AStateDrivenNPC::GetIsSearching() const
@@ -190,6 +197,14 @@ void AStateDrivenNPC::Tick(float DeltaTime)
 	if (SensedActor)
 	{
 		LastKnownPos = GetNavMeshPosition(SensedActor->GetActorLocation());
+	}
+
+	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
+	{
+		if (!AnimInst->IsAnyMontagePlaying())
+		{
+			bCanAttack = true;
+		}
 	}
 }
 
