@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BaseCharacter.h"
 #include "CombatInterface.h"
 #include "HealthComponent.h"
 #include "LockOnComponent.h"
@@ -21,7 +22,7 @@ struct FInputActionValue;
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
-class AFSMSysCharacter : public ACharacter, public ICombatInterface
+class AFSMSysCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
 
@@ -70,16 +71,7 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 	virtual  void Attack_Implementation() override;
-	virtual void TakeDamage(float Damage, ICombatInterface* Attacker) override;
-	virtual void Kill() override;
-	virtual void AddKillCount() override;
-	UFUNCTION()
-	void OnDeath();
-	UFUNCTION(BlueprintCallable)
-	void Ragdoll();
 
-	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void Punch();
 protected:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
@@ -96,23 +88,12 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
 	// To add mapping context
-	virtual void BeginPlay();
+	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool IsInCombat();
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat")
-	bool bCanAttack = true;
 
-	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	TArray<UAnimMontage*> PunchMontages;
-	
-	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	UAnimMontage* HitMontage;
-
-	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	UAnimMontage* KOMontage;
 private:
 	UPROPERTY(VisibleAnywhere, Category = "LockOn")
 	ULockOnComponent* LockOnComp;
@@ -121,28 +102,8 @@ private:
 	void UnlockOnTarget();
 	void RotateToTarget(float DeltaTime);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health", meta = (AllowPrivateAccess = "true"))
-	UHealthComponent* HealthComp;
-	
-	bool bAlive = true;
-
 	UPROPERTY(EditAnywhere, Category="Combat", meta=(ClampMin="0.0"))
 	float AttackDist = 125.f;
-
-	UPROPERTY(EditAnywhere, Category="Combat", meta=(ClampMin="0.0"))
-	float MinDamage = 5.f;
-
-	UPROPERTY(EditAnywhere, Category="Combat", meta=(ClampMin="0.0"))
-	float MaxDamage = 20.f;
-
-	UFUNCTION()
-	void Respawn();
-	FTimerHandle RespawnTimerHandle;
-	FVector SpawnPoint;
-
-	ICombatInterface* LastAttacker;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Combat", Meta = (AllowPrivateAccess = "true"))
-	int Score = 0;
+	
 };
 

@@ -22,8 +22,8 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 AFSMSysCharacter::AFSMSysCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComp"));
 	LockOnComp = CreateDefaultSubobject<ULockOnComponent>(TEXT("LockOnComp"));
+
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 		
@@ -82,107 +82,9 @@ void AFSMSysCharacter::Attack_Implementation()
 	}
 }
 
-void AFSMSysCharacter::TakeDamage(float Damage, ICombatInterface* Attacker)
-{
-	if (bAlive)
-	{
-		LastAttacker = Attacker;
-	}
-	HealthComp->TakeDamage(Damage);
-	if (!bAlive) return;
-	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
-	{
-		if (!HitMontage) return;
-		AnimInst->Montage_Play(HitMontage);
-		bCanAttack = false;
-	}
-}
-
-void AFSMSysCharacter::Kill()
-{
-	if (!bAlive) return;
-	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
-	{
-		if (!KOMontage) return;
-		UE_LOG(LogTemp, Display, TEXT("Playing KO Anim on Player"));
-		AnimInst->Montage_Play(KOMontage);
-		GetCharacterMovement()->DisableMovement();
-		if (AController* PlayerController = GetController())
-		{
-			PlayerController->DisableInput(nullptr);
-		}
-		bCanAttack = false;
-	}
-	bAlive = false;
-}
-
-void AFSMSysCharacter::AddKillCount()
-{
-	Score++;
-}
-
-void AFSMSysCharacter::OnDeath()
-{
-	if (LastAttacker)
-	{
-		LastAttacker->AddKillCount();
-	}
-	Kill();
-}
-
-void AFSMSysCharacter::Ragdoll()
-{
-	GetMesh()->SetSimulatePhysics(true);
-	GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
-
-	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &AFSMSysCharacter::Respawn, 3.f, false);
-}
-
-void AFSMSysCharacter::Respawn()
-{
-	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
-	{
-		AnimInst->StopAllMontages(0.f);
-		bCanAttack = false;
-	}
-	
-	GetMesh()->SetSimulatePhysics(false);
-	GetMesh()->SetCollisionProfileName(TEXT("CharacterMesh"));
-	
-	HealthComp->Heal(HealthComp->GetMaxHealth());
-	bAlive = true;
-	
-	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
-	if (AController* PlayerController = GetController())
-	{
-		PlayerController->EnableInput(nullptr);
-	}
-	
-	GetCapsuleComponent()->SetWorldRotation(FRotator(0.0f, GetActorRotation().Yaw, 0.0f));
-	GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, .0f));
-
-	GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
-	SetActorLocation(SpawnPoint);
-}
-
-void AFSMSysCharacter::Punch()
-{
-	if (!bCanAttack) return;
-	if(auto* const AnimInst = GetMesh()->GetAnimInstance()){
-		int32 RandIndex = FMath::RandRange(0, PunchMontages.Num() - 1);
-		if (UAnimMontage* SelectedMont = PunchMontages[RandIndex])
-		{
-			AnimInst->Montage_Play(SelectedMont);
-			bCanAttack = false;
-		}
-	}
-}
-
 void AFSMSysCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	HealthComp->OnDeath.AddDynamic(this, &AFSMSysCharacter::OnDeath);
-	SpawnPoint = GetActorLocation();
 }
 
 void AFSMSysCharacter::Tick(float DeltaTime)
@@ -192,15 +94,6 @@ void AFSMSysCharacter::Tick(float DeltaTime)
 	if (LockOnComp->GetLockOnTarget())
 	{
 		RotateToTarget(DeltaTime);
-	}
-
-	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
-	{
-		if (!bAlive) return;
-		if (!AnimInst->IsAnyMontagePlaying())
-		{
-			bCanAttack = true;
-		}
 	}
 }
 

@@ -9,6 +9,7 @@
 #include "NavigationSystem.h"
 #include "StateMachine.h"
 #include "Components/CapsuleComponent.h"
+#include "LevelInstance/LevelInstanceTypes.h"
 
 // Sets default values
 AStateDrivenNPC::AStateDrivenNPC()
@@ -36,8 +37,6 @@ AStateDrivenNPC::AStateDrivenNPC()
 
 	// Bind to perception updates
 	PerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AStateDrivenNPC::OnPerceptionUpdated);
-
-	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComp"));
 }
 
 UStateMachine* AStateDrivenNPC::GetStateMachine() const
@@ -73,20 +72,6 @@ void AStateDrivenNPC::SetMoveSpeed(float Speed)
 	}
 }
 
-void AStateDrivenNPC::Punch()
-{
-	if (!bCanAttack) return;
-	if (PunchMontages.Num() <= 0) { UE_LOG(LogTemp, Error, TEXT("NPC holds no Punch Montages!")); return; }
-	if(auto* const AnimInst = GetMesh()->GetAnimInstance()){
-		int32 RandIndex = FMath::RandRange(0, PunchMontages.Num() - 1);
-		if (UAnimMontage* SelectedMont = PunchMontages[RandIndex])
-		{
-			AnimInst->Montage_Play(SelectedMont);
-			bCanAttack = false;
-		}
-	}
-}
-
 void AStateDrivenNPC::Attack_Implementation()
 {
 	if (!bAlive) return;
@@ -103,88 +88,12 @@ void AStateDrivenNPC::Attack_Implementation()
 	}
 }
 
-void AStateDrivenNPC::TakeDamage(float DamageAmount, ICombatInterface* Attacker)
-{
-	if (bAlive)
-	{
-		LastAttacker = Attacker;
-	}
-	HealthComp->TakeDamage(DamageAmount);
-	if (!bAlive) return;
-	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
-	{
-		if (!HitMontage) return;
-		AnimInst->Montage_Play(HitMontage);
-		bCanAttack = false;
-	}
-}
-
-void AStateDrivenNPC::Kill()
-{
-	if (!bAlive) return;
-	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
-	{
-		if (!KOMontage) return;
-		AnimInst->Montage_Play(KOMontage);
-		GetCharacterMovement()->DisableMovement();
-		bCanAttack = false;
-	}
-	bAlive = false;
-}
-
-void AStateDrivenNPC::AddKillCount()
-{
-	Score++;
-}
-
-void AStateDrivenNPC::Ragdoll()
-{
-	GetMesh()->SetSimulatePhysics(true);
-	GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
-
-	GetWorldTimerManager().SetTimer(RespawnTimerHandle, this, &AStateDrivenNPC::Respawn, 3.f, false);
-}
-
-void AStateDrivenNPC::OnDeath()
-{
-	if (LastAttacker)
-	{
-		LastAttacker->AddKillCount();
-	}
-	Kill();
-}
-void AStateDrivenNPC::Respawn()
-{
-	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
-	{
-		AnimInst->StopAllMontages(0.f);
-		bCanAttack = false;
-	}
-	
-	GetMesh()->SetSimulatePhysics(false);
-	GetMesh()->SetCollisionProfileName(TEXT("CharacterMesh"));
-	
-	HealthComp->Heal(HealthComp->GetMaxHealth());
-	bAlive = true;
-	
-	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
-	
-	StateMachine->ChangeState(PatrolState);
-	
-	GetCapsuleComponent()->SetWorldRotation(FRotator(0.0f, GetActorRotation().Yaw, 0.0f));
-	GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, .0f));
-
-	GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
-	SetActorLocation(PatrolPoints[FMath::RandRange(0, PatrolPoints.Num() - 1)]->GetActorLocation());
-}
-
 
 // Called when the game starts or when spawned
 void AStateDrivenNPC::BeginPlay()
 {
 	Super::BeginPlay();
 	InitializeStateMachine();
-	HealthComp->OnDeath.AddDynamic(this, &AStateDrivenNPC::OnDeath);
 }
 
 
@@ -205,7 +114,10 @@ void AStateDrivenNPC::OnPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 	if (Stimulus.WasSuccessfullySensed())
 	{
 		UE_LOG(LogTemp, Log, TEXT("AI Detected Stimulus"));
-		SensedActor = Actor;
+		if (ABaseCharacter* SensedCharacter = Cast<ABaseCharacter>(Actor))
+		{
+			if (SensedCharacter->IsAlive()) { SensedActor = Actor; }
+		}
 	}
 	else
 	{
@@ -248,6 +160,10 @@ void AStateDrivenNPC::Tick(float DeltaTime)
 	if (SensedActor)
 	{
 		LastKnownPos = GetNavMeshPosition(SensedActor->GetActorLocation());
+		if (ABaseCharacter* SensedCharacter = Cast<ABaseCharacter>(SensedActor))
+		{
+			if (!SensedCharacter->IsAlive()) SensedActor = nullptr;
+		}
 	}
 
 	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
@@ -260,10 +176,4 @@ void AStateDrivenNPC::Tick(float DeltaTime)
 	}
 }
 
-// Called to bind functionality to input
-void AStateDrivenNPC::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
 

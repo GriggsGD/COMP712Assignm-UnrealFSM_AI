@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BaseCharacter.h"
 #include "BaseState.h"
 #include "CombatInterface.h"
 #include "HealthComponent.h"
@@ -15,7 +16,7 @@
 #include "StateDrivenNPC.generated.h"
 
 UCLASS()
-class FSMSYS_API AStateDrivenNPC : public ACharacter, public IStateMachineOwner, public ICombatInterface
+class FSMSYS_API AStateDrivenNPC : public ABaseCharacter, public IStateMachineOwner
 {
 	GENERATED_BODY()
 
@@ -25,9 +26,6 @@ public:
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
 	//State Machine
 	virtual UStateMachine* GetStateMachine() const override;
@@ -77,10 +75,6 @@ public:
 	float AttackDist = 200.0f;
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	float PunchDist = 125.0f;
-	UPROPERTY(EditAnywhere, Category = "Combat")
-	float MinDamage = 5.f;
-	UPROPERTY(EditAnywhere, Category = "Combat")
-	float MaxDamage = 20.f;
 	
 	UFUNCTION(BlueprintCallable)
 	AActor* GetSensedActor();
@@ -92,20 +86,10 @@ public:
 	bool GetIsInCombat() const;
 
 	void SetMoveSpeed(float Speed);
-
-	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void Punch();
+	
 
 	virtual void Attack_Implementation() override;
-	virtual void TakeDamage(float DamageAmount, ICombatInterface* Attacker) override;
-	virtual void Kill() override;
-	virtual void AddKillCount() override;
 
-	UFUNCTION(BlueprintCallable)
-	void Ragdoll();
-	
-	UFUNCTION()
-	void OnDeath();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -113,20 +97,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	bool IsInCombat;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat")
-	bool bCanAttack = true;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	bool IsSearching;
 
-	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	TArray<UAnimMontage*> PunchMontages;
-
-	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	UAnimMontage* HitMontage;
-	
-	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	UAnimMontage* KOMontage;
 private:
 	//State Machine
 	UPROPERTY()
@@ -154,18 +127,5 @@ private:
 	FVector LastKnownPos;
 
 	FVector GetNavMeshPosition(FVector Pos) const;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health", meta = (AllowPrivateAccess = "true"))
-	UHealthComponent* HealthComp;
 	
-	bool bAlive = true;
-
-	UFUNCTION()
-	void Respawn();
-	FTimerHandle RespawnTimerHandle;
-	
-	ICombatInterface* LastAttacker;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Combat", Meta = (AllowPrivateAccess = "true"))
-	int Score = 0;
 };
