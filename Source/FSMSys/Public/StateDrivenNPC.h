@@ -86,9 +86,10 @@ public:
 	bool GetIsInCombat() const;
 
 	void SetMoveSpeed(float Speed);
-	
 
 	virtual void Attack_Implementation() override;
+
+	virtual void Ragdoll() override;
 
 protected:
 	// Called when the game starts or when spawned

@@ -38,7 +38,37 @@ AStateDrivenNPC::AStateDrivenNPC()
 	// Bind to perception updates
 	PerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AStateDrivenNPC::OnPerceptionUpdated);
 }
+// Called when the game starts or when spawned
+void AStateDrivenNPC::BeginPlay()
+{
+	Super::BeginPlay();
+	InitializeStateMachine();
+}
+// Called every frame
+void AStateDrivenNPC::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
 
+	StateMachine->Update(DeltaTime);
+
+	if (SensedActor)
+	{
+		LastKnownPos = GetNavMeshPosition(SensedActor->GetActorLocation());
+		if (ABaseCharacter* SensedCharacter = Cast<ABaseCharacter>(SensedActor))
+		{
+			if (!SensedCharacter->IsAlive()) SensedActor = nullptr;
+		}
+	}
+
+	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
+	{
+		if (!bAlive) return;
+		if (!AnimInst->IsAnyMontagePlaying())
+		{
+			bCanAttack = true;
+		}
+	}
+}
 UStateMachine* AStateDrivenNPC::GetStateMachine() const
 {
 	return StateMachine;
@@ -88,14 +118,11 @@ void AStateDrivenNPC::Attack_Implementation()
 	}
 }
 
-
-// Called when the game starts or when spawned
-void AStateDrivenNPC::BeginPlay()
+void AStateDrivenNPC::Ragdoll()
 {
-	Super::BeginPlay();
-	InitializeStateMachine();
+	SpawnPoint = PatrolPoints[FMath::RandRange(0, PatrolPoints.Num() - 1)]->GetActorLocation();
+	Super::Ragdoll();
 }
-
 
 void AStateDrivenNPC::InitializeStateMachine()
 {
@@ -150,30 +177,6 @@ void AStateDrivenNPC::MoveToPoint(FVector Pos) const
 		AICtrl->MoveToLocation(Pos);
 	}
 }
-// Called every frame
-void AStateDrivenNPC::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 
-	StateMachine->Update(DeltaTime);
-
-	if (SensedActor)
-	{
-		LastKnownPos = GetNavMeshPosition(SensedActor->GetActorLocation());
-		if (ABaseCharacter* SensedCharacter = Cast<ABaseCharacter>(SensedActor))
-		{
-			if (!SensedCharacter->IsAlive()) SensedActor = nullptr;
-		}
-	}
-
-	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
-	{
-		if (!bAlive) return;
-		if (!AnimInst->IsAnyMontagePlaying())
-		{
-			bCanAttack = true;
-		}
-	}
-}
 
 
