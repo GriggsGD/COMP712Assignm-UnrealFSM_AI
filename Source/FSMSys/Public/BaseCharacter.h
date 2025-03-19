@@ -38,6 +38,8 @@ public:
 	virtual void Respawn(FVector SpawnPos);
 
 	virtual bool IsAlive() { return bAlive; }
+
+	virtual ABaseCharacter* GetOpponent() {return Opponent;}
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -76,4 +78,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* KOMontage;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	ABaseCharacter* Opponent;
 };
