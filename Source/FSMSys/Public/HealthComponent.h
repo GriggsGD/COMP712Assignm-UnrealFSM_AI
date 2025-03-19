@@ -21,7 +21,7 @@ public:
 	FOnDeath OnDeath;
 	UPROPERTY(BlueprintAssignable)
 	FOnHealthChanged OnHealthChanged;
-
+	
 	void TakeDamage(float DamageAmount);
 	UFUNCTION(BlueprintCallable)
 	float GetHealth() const { return CurrentHealth; }

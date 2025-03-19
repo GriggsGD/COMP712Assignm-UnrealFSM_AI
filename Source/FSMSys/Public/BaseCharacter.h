@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "CombatInterface.h"
 #include "HealthComponent.h"
+#include "StaminaComponent.h"
 #include "GameFramework/Character.h"
 #include "BaseCharacter.generated.h"
 
@@ -43,6 +44,8 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health", meta = (AllowPrivateAccess = "true"))
 	UHealthComponent* HealthComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stamina", meta = (AllowPrivateAccess = "true"))
+	UStaminaComponent* StaminaComp;
 	
 	bool bAlive = true;
 	FTimerHandle RespawnTimerHandle;
@@ -53,6 +56,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Combat", meta=(ClampMin="0.0"))
 	float MaxDamage = 20.f;
+
+	UPROPERTY(EditAnywhere, Category="Combat", meta=(ClampMin="0.0"))
+	float StaminaPerHit = 25.f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat")
 	bool bCanAttack = true;

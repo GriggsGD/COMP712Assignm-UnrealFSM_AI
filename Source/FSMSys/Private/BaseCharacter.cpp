@@ -3,6 +3,7 @@
 
 #include "BaseCharacter.h"
 
+#include "StaminaComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -12,6 +13,7 @@ ABaseCharacter::ABaseCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComp"));
+	StaminaComp = CreateDefaultSubobject<UStaminaComponent>(TEXT("StaminaComp"));
 }
 // Called when the game starts or when spawned
 void ABaseCharacter::BeginPlay()
@@ -29,7 +31,8 @@ void ABaseCharacter::Tick(float DeltaTime)
 	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
 	{
 		if (!bAlive) return;
-		if (!AnimInst->IsAnyMontagePlaying())
+		if (StaminaComp->GetStamina() < StaminaPerHit) { bCanAttack = false; }
+		else if (!AnimInst->IsAnyMontagePlaying())
 		{
 			bCanAttack = true;
 		}
@@ -48,6 +51,7 @@ void ABaseCharacter::TakeDamage(float Damage, ICombatInterface* Attacker)
 		LastAttacker = Attacker;
 	}
 	HealthComp->TakeDamage(Damage);
+	StaminaComp->RegenTimeout();
 	if (!bAlive) return;
 	if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
 	{
@@ -108,6 +112,7 @@ void ABaseCharacter::Punch()
 		if (UAnimMontage* SelectedMont = PunchMontages[RandIndex])
 		{
 			AnimInst->Montage_Play(SelectedMont);
+			StaminaComp->UseStamina(StaminaPerHit);
 			bCanAttack = false;
 		}
 	}
