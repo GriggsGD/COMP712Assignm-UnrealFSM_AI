@@ -38,8 +38,9 @@ public:
 	virtual void Respawn(FVector SpawnPos);
 
 	virtual bool IsAlive() { return bAlive; }
-
-	virtual ABaseCharacter* GetOpponent() {return Opponent;}
+	
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	virtual AActor* GetOpponent() {return Opponent;}
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -80,5 +81,5 @@ protected:
 	UAnimMontage* KOMontage;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	ABaseCharacter* Opponent;
+	AActor* Opponent;
 };

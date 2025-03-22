@@ -26,9 +26,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	float GetHealth() const { return CurrentHealth; }
 	UFUNCTION(BlueprintCallable)
+	float GetLastHealth() const { return LastHealth; }
+	UFUNCTION(BlueprintCallable)
+	void ResetLastHealth();
+	UFUNCTION(BlueprintCallable)
 	float GetMaxHealth() const { return MaxHealth; }
 	UFUNCTION(BlueprintCallable)
 	void Heal(float HealAmount);
+	UFUNCTION(BlueprintCallable)
+	void ResetHealth();
 protected:
 	virtual void BeginPlay() override;
 
@@ -37,4 +43,5 @@ private:
 	float MaxHealth = 150.0f;
 
 	float CurrentHealth;
+	float LastHealth;
 };

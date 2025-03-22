@@ -1,9 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "BaseCharacter.h"
 #include "GameFramework/Actor.h"
 #include "Kismet/GameplayStatics.h"
-#include "BaseCharacter.h"
-
 #include "StaminaComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -22,12 +21,12 @@ void ABaseCharacter::BeginPlay()
 	Super::BeginPlay();
 	HealthComp->OnDeath.AddDynamic(this, &ABaseCharacter::OnDeath);
 	SpawnPoint = GetActorLocation();
-	/*TArray<TSubclassOf<ABaseCharacter*>> FoundCharas;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), TSubclassOf<ABaseCharacter>, FoundCharas);
-	for(ABaseCharacter* Chara : FoundCharas){
-		if(Chara != this) {Opponent = this;}
-	}*/
-	
+	TArray<AActor*> FoundCharas;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseCharacter::StaticClass(), FoundCharas);
+	for(AActor* Chara : FoundCharas){
+		if(Chara->GetActorLabel() != this->GetActorLabel()) {Opponent = Chara;}
+	}
+	UE_LOG(LogTemp, Log, TEXT("'%s' Opponent set to: '%s'"), *this->GetName(), *Opponent->GetName())
 }
 
 // Called every frame
@@ -136,7 +135,7 @@ void ABaseCharacter::Respawn(FVector SpawnPos)
 	GetMesh()->SetSimulatePhysics(false);
 	GetMesh()->SetCollisionProfileName(TEXT("CharacterMesh"));
 	
-	HealthComp->Heal(HealthComp->GetMaxHealth());
+	HealthComp->ResetHealth();
 	bAlive = true;
 	
 	GetCharacterMovement()->SetMovementMode(MOVE_Walking);

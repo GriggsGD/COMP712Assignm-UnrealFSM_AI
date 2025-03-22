@@ -76,8 +76,14 @@ protected:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 
+	UFUNCTION(BlueprintCallable)
+	void MLMove(float XInput, float YInput);
+
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
+
+	UFUNCTION(BlueprintCallable)
+	void LookHoriOnly(float HoriLook);
 
 	void Quit(const FInputActionValue& Value);
 			
@@ -98,7 +104,9 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "LockOn")
 	ULockOnComponent* LockOnComp;
 
+	UFUNCTION(BlueprintCallable, Category = "LockOn")
 	void LockOnTarget();
+	UFUNCTION(BlueprintCallable, Category = "LockOn")
 	void UnlockOnTarget();
 	void RotateToTarget(float DeltaTime);
 

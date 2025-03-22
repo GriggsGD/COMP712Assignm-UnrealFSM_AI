@@ -190,6 +190,28 @@ void AFSMSysCharacter::Move(const FInputActionValue& Value)
 	}
 }
 
+void AFSMSysCharacter::MLMove(float XInput, float YInput)
+{
+	FVector2D MovementVector = FVector2d(XInput, YInput);
+
+	if (Controller != nullptr)
+	{
+		// find out which way is forward
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+		// get forward vector
+		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	
+		// get right vector 
+		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+		// add movement 
+		AddMovementInput(ForwardDirection, MovementVector.Y);
+		AddMovementInput(RightDirection, MovementVector.X);
+	}
+}
+
 void AFSMSysCharacter::Look(const FInputActionValue& Value)
 {
 	// input is a Vector2D
@@ -202,6 +224,11 @@ void AFSMSysCharacter::Look(const FInputActionValue& Value)
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
 }
+void AFSMSysCharacter::LookHoriOnly(float HoriLook)
+{
+	AddControllerYawInput(HoriLook);
+}
+
 
 void AFSMSysCharacter::Quit(const FInputActionValue& Value)
 {
