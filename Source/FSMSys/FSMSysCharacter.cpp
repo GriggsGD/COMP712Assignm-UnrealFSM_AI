@@ -64,8 +64,46 @@ AFSMSysCharacter::AFSMSysCharacter()
 	// Register sight stimuli
 	StimuliSourceComponent->RegisterForSense(TSubclassOf<UAISense_Sight>());
 	StimuliSourceComponent->RegisterWithPerceptionSystem();
+
+	RewardsComponent = CreateDefaultSubobject<UAgentRewardsComponent>(TEXT("RewardsComponent"));
+}
+void AFSMSysCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	if (RewardsComponent)
+	{
+		RewardsComponent->LastHealth = HealthComp->GetHealth();
+	}
 }
 
+void AFSMSysCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (LockOnComp->GetLockOnTarget())
+	{
+		RotateToTarget(DeltaTime);
+	}
+
+	if (RewardsComponent)
+	{
+		if (GetVelocity().Length() <= IdleVelocityThreshold)
+		{
+			if (UAnimInstance* AnimInst = GetMesh()->GetAnimInstance())
+			{
+				if (!AnimInst->IsAnyMontagePlaying())
+				{
+					RewardsComponent->IdleTime += DeltaTime;
+				}
+			}
+		}
+		if (bAlive)
+		{
+			RewardsComponent->TimeAlive += DeltaTime;
+		}
+		else {RewardsComponent->TimeAlive = 0;}
+	}
+}
 void AFSMSysCharacter::Attack_Implementation()
 {
 	AActor* Target = LockOnComp->GetLockOnTarget();
@@ -77,37 +115,53 @@ void AFSMSysCharacter::Attack_Implementation()
 			if (ICombatInterface* CombatTarget = Cast<ICombatInterface>(Target))
 			{
 				CombatTarget->TakeDamage(Damage, this);
+				if (RewardsComponent)
+				{
+					RewardsComponent->HitsLanded++;
+				}
+			}
+		}
+		else
+		{
+			if (RewardsComponent)
+			{
+				RewardsComponent->HitsMissed++;
 			}
 		}
 	}
 }
 
-void AFSMSysCharacter::BeginPlay()
+void AFSMSysCharacter::ResetCharacter()
 {
-	Super::BeginPlay();
+	if (RewardsComponent){ RewardsComponent->ResetStats(); }
+	Super::ResetCharacter();
 }
 
-void AFSMSysCharacter::Tick(float DeltaTime)
+void AFSMSysCharacter::ResetAll()
 {
-	Super::Tick(DeltaTime);
-
-	if (LockOnComp->GetLockOnTarget())
+	ResetCharacter();
+	if (ABaseCharacter* OppChara = Cast<ABaseCharacter>(Opponent))
 	{
-		RotateToTarget(DeltaTime);
+		OppChara->ResetCharacter();
 	}
 }
 
 void AFSMSysCharacter::LockOnTarget()
 {
-	UE_LOG(LogTemp, Log, TEXT("Locking onto target"));
+	//UE_LOG(LogTemp, Log, TEXT("Locking onto target"));
 	LockOnComp->FindTarget();
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	GetCharacterMovement()->MaxWalkSpeed = 150;
+
+	if (RewardsComponent)
+	{
+		RewardsComponent->WasLockedOn = true;
+	}
 }
 
 void AFSMSysCharacter::UnlockOnTarget()
 {
-	UE_LOG(LogTemp, Log, TEXT("Target unlock"));
+	//UE_LOG(LogTemp, Log, TEXT("Target unlock"));
 	LockOnComp->ClearTarget();
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxWalkSpeed = 500;

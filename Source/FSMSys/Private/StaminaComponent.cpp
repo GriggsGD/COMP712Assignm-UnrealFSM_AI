@@ -50,3 +50,9 @@ void UStaminaComponent::RegenTimeout()
 	RegenTimer = RegenTimeoutTime;
 }
 
+void UStaminaComponent::ResetStamina()
+{
+	CurrStamina = MaxStamina;
+	OnStaminaChanged.Broadcast(CurrStamina);
+}
+

@@ -31,6 +31,9 @@ public:
 	void AddStamina(float Stamina);
 	UFUNCTION(BlueprintCallable, Category = "Stamina")
 	void RegenTimeout();
+
+	UFUNCTION(BlueprintCallable, Category = "Stamina")
+	void ResetStamina();
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

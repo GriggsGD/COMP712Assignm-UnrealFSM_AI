@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AgentRewardsComponent.h"
 #include "BaseCharacter.h"
 #include "CombatInterface.h"
 #include "HealthComponent.h"
@@ -72,6 +73,11 @@ public:
 
 	virtual  void Attack_Implementation() override;
 
+	virtual void ResetCharacter() override;
+
+	UFUNCTION(BlueprintCallable, Category = "Game")
+
+	void ResetAll();
 protected:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
@@ -100,6 +106,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool IsInCombat();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Learning Agent")
+	UAgentRewardsComponent* RewardsComponent;
+	
 private:
 	UPROPERTY(VisibleAnywhere, Category = "LockOn")
 	ULockOnComponent* LockOnComp;
@@ -112,6 +121,8 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="Combat", meta=(ClampMin="0.0"))
 	float AttackDist = 125.f;
-	
+
+	UPROPERTY(EditAnywhere, Category="Combat", meta=(ClampMin="0.0"))
+	float IdleVelocityThreshold = 0.5f;
 };
 

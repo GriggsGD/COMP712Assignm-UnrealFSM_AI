@@ -36,11 +36,15 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	virtual void Respawn(FVector SpawnPos);
-
+	
+	UFUNCTION(BlueprintCallable, Category = "Health")
 	virtual bool IsAlive() { return bAlive; }
 	
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	virtual AActor* GetOpponent() {return Opponent;}
+
+	UFUNCTION(BlueprintCallable, Category = "Game")
+	virtual void ResetCharacter();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

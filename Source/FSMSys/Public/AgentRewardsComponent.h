@@ -18,21 +18,25 @@ public:
 	UAgentRewardsComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Rewards")
+	float LastHealth;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Rewards")
+	int  LastScore;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Rewards")
+	int  HitsLanded;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Rewards")
+	int HitsMissed;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Rewards")
+	bool WasLockedOn;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Rewards")
+	float IdleTime;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Rewards")
+	float TimeAlive;
+
+	void ResetStats();
 protected:
 	virtual void BeginPlay() override;
 
 private:
-	float LastHealth;
-	float LastStamina;
-	int  HitsLanded;
-	int HitMissed;
-	bool WasLockedOn;
-	float IdleTime;
-	
-	float TimeAlive;
-	
-	UPROPERTY()
-	UHealthComponent* HealthComp;
-	UPROPERTY()
-	UStaminaComponent* StaminaComp;
+
 };

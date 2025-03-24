@@ -9,15 +9,31 @@
 UAgentRewardsComponent::UAgentRewardsComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	LastHealth = 0;
+	LastScore = 0;
+	HitsLanded = 0;
+	HitsMissed = 0;
+	WasLockedOn = false;
+	IdleTime = 0;
+	TimeAlive = 0;
 }
 
+
+void UAgentRewardsComponent::ResetStats()
+{
+	LastHealth = 0;
+	LastScore = 0;
+	HitsLanded = 0;
+	HitsMissed = 0;
+	WasLockedOn = false;
+	IdleTime = 0;
+	TimeAlive = 0;
+}
 
 // Called when the game starts
 void UAgentRewardsComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	HealthComp = GetOwner()->FindComponentByClass<UHealthComponent>();
-	StaminaComp = GetOwner()->FindComponentByClass<UStaminaComponent>();
 }
 
 

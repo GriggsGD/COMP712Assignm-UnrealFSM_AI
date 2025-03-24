@@ -15,6 +15,9 @@ ABaseCharacter::ABaseCharacter()
 	HealthComp = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComp"));
 	StaminaComp = CreateDefaultSubobject<UStaminaComponent>(TEXT("StaminaComp"));
 }
+
+
+
 // Called when the game starts or when spawned
 void ABaseCharacter::BeginPlay()
 {
@@ -44,7 +47,11 @@ void ABaseCharacter::Tick(float DeltaTime)
 		}
 	}
 }
-
+void ABaseCharacter::ResetCharacter()
+{
+	Score = 0;
+	Respawn(SpawnPoint);
+}
 void ABaseCharacter::Attack_Implementation()
 {
 	ICombatInterface::Attack_Implementation();
@@ -136,6 +143,7 @@ void ABaseCharacter::Respawn(FVector SpawnPos)
 	GetMesh()->SetCollisionProfileName(TEXT("CharacterMesh"));
 	
 	HealthComp->ResetHealth();
+	StaminaComp->ResetStamina();
 	bAlive = true;
 	
 	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
