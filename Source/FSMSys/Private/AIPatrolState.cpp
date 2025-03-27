@@ -12,7 +12,7 @@ void UAIPatrolState::EnterState_Implementation(AActor* OwnerActor)
 	
 	if (NPCCtrl)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Current patrol point: %i"), NPCCtrl->CurrentPatrolPointIndex);
+		//UE_LOG(LogTemp, Log, TEXT("Current patrol point: %i"), NPCCtrl->CurrentPatrolPointIndex);
 
 		if(NPCCtrl->PatrolPoints.Num() == 0) return;
 		NPCCtrl->MoveToPoint(NPCCtrl->PatrolPoints[NPCCtrl->CurrentPatrolPointIndex]->GetActorLocation());

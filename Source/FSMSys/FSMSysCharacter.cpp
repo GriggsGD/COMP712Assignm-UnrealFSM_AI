@@ -146,6 +146,17 @@ void AFSMSysCharacter::ResetAll()
 	}
 }
 
+void AFSMSysCharacter::LogEpisodeResults()
+{
+	if (Opponent)
+	{
+		if (ABaseCharacter* OppChara = Cast<ABaseCharacter>(Opponent))
+		{
+			UE_LOG(LogTemp, Log, TEXT("Training Process: Iter: Agent Score: '%d', Bot Score: '%d'"), Score, OppChara->GetScore());
+		}
+	}
+}
+
 void AFSMSysCharacter::LockOnTarget()
 {
 	//UE_LOG(LogTemp, Log, TEXT("Locking onto target"));

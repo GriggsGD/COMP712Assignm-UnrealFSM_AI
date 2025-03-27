@@ -43,6 +43,7 @@ void AStateDrivenNPC::BeginPlay()
 {
 	Super::BeginPlay();
 	InitializeStateMachine();
+	SpawnPoint = PatrolPoints[FMath::RandRange(0, PatrolPoints.Num() - 1)]->GetActorLocation();
 }
 // Called every frame
 void AStateDrivenNPC::Tick(float DeltaTime)
@@ -124,6 +125,12 @@ void AStateDrivenNPC::Ragdoll()
 	Super::Ragdoll();
 }
 
+void AStateDrivenNPC::ResetCharacter()
+{
+	Super::ResetCharacter();
+	GetStateMachine()->ChangeState(PatrolState);
+}
+
 void AStateDrivenNPC::InitializeStateMachine()
 {
 	if (!StateMachine)
@@ -140,7 +147,7 @@ void AStateDrivenNPC::OnPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
 	if (Stimulus.WasSuccessfullySensed())
 	{
-		UE_LOG(LogTemp, Log, TEXT("AI Detected Stimulus"));
+		//UE_LOG(LogTemp, Log, TEXT("AI Detected Stimulus"));
 		if (ABaseCharacter* SensedCharacter = Cast<ABaseCharacter>(Actor))
 		{
 			if (SensedCharacter->IsAlive()) { SensedActor = Actor; }

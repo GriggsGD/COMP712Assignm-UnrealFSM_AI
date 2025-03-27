@@ -76,8 +76,10 @@ public:
 	virtual void ResetCharacter() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Game")
-
 	void ResetAll();
+
+	UFUNCTION(BlueprintCallable, Category = "Game")
+	void LogEpisodeResults();
 protected:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);

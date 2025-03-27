@@ -39,7 +39,7 @@ void UStateMachine::ChangeState(TSubclassOf<UBaseState> NewStateClass)
 	if (CurrentState)
 	{
 		CurrentState->ExitState(Owner);
-		UE_LOG(LogTemp, Log, TEXT("State Machine: Switching to State: %s"), *NewStateClass->GetName());
+		//UE_LOG(LogTemp, Log, TEXT("State Machine: Switching to State: %s"), *NewStateClass->GetName());
 	}
 
 	if (NewStateClass)

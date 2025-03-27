@@ -45,6 +45,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Game")
 	virtual void ResetCharacter();
+
+	UFUNCTION(BlueprintCallable, Category = "Game")
+	virtual int GetScore() {return Score;}
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -56,6 +59,7 @@ protected:
 	
 	bool bAlive = true;
 	FTimerHandle RespawnTimerHandle;
+	UPROPERTY(EditAnywhere, Category = "Spawn", meta = (AllowPrivateAccess = "true"))
 	FVector SpawnPoint;
 	
 	UPROPERTY(EditAnywhere, Category="Combat", meta=(ClampMin="0.0"))

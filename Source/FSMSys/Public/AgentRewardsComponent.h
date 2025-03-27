@@ -32,7 +32,9 @@ public:
 	float IdleTime;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Rewards")
 	float TimeAlive;
-
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="Rewards")
+	bool WasRewardedEnemyLowHealth;
+	
 	void ResetStats();
 protected:
 	virtual void BeginPlay() override;

@@ -16,6 +16,7 @@ UAgentRewardsComponent::UAgentRewardsComponent()
 	WasLockedOn = false;
 	IdleTime = 0;
 	TimeAlive = 0;
+	WasRewardedEnemyLowHealth = false;
 }
 
 
@@ -28,6 +29,7 @@ void UAgentRewardsComponent::ResetStats()
 	WasLockedOn = false;
 	IdleTime = 0;
 	TimeAlive = 0;
+	WasRewardedEnemyLowHealth = false;
 }
 
 // Called when the game starts

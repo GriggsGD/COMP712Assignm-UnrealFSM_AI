@@ -91,6 +91,8 @@ public:
 
 	virtual void Ragdoll() override;
 
+	virtual void ResetCharacter() override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
